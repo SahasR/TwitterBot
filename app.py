@@ -2,8 +2,9 @@ import tweepy
 import time
 import requests
 from bs4 import BeautifulSoup
-import time
-#These Keys are given ny Twitter
+# import time
+from datetime import datetime
+
 CONSUMER_KEY = ""
 CONSUMER_SECRET = ""
 
@@ -28,7 +29,7 @@ def begin_dissection(res):
     global IPM
     Tot = res[12:15]
     # print(Tot)
-    IPM = res[34:39]
+    IPM = res[-4:-1]
     # print(IPM)
 
 def get_corona():
@@ -38,8 +39,10 @@ def get_corona():
     soup = BeautifulSoup(page.text, 'html.parser')
     # soup = BeautifulSoup(URL)
     countries = soup.find_all('tr')
-    t = time.localtime()
-    current_time = time.strftime("%H:%M:%S", t)
+    # t = time.localtime()
+    # current_time = time.strftime("%H:%M:%S", t)
+    now = datetime.now()
+    current_time = now.strftime("%m/%d/%Y, %H:%M:%S")
     for country in countries:
         str = country.get_text()
         if CountryName in str:
@@ -47,10 +50,12 @@ def get_corona():
             # print(str)
             # print(len(str))
             begin_dissection(res)
-    ReplyString = 'Sri Lanka\nNo. Of Covid-19 Patients: ' + Tot + '\nNo. Of Patients Per Million Of Population: ' + IPM +'\n' + current_time +'\n#LKA #SriLanka'
+    ReplyString = 'Sri Lanka\nNo. Of Covid-19 Patients: ' + Tot + '\nNo. Of Patients Per Million Of Population: ' + IPM +'\n' + current_time +'\n#LKA #SriLanka\nFrom worldometers.info'
     print(ReplyString)
-    print("Posting on @sahasbot...")
-    api.update_status(ReplyString)
+    corona_prompt = input("Is the User pleased with the Reply String?(Y/N): ").lower()
+    if corona_prompt == "y":
+        print("Posting on @sahasbot...")
+        api.update_status(ReplyString)
 
 def get_temperature():
     r = requests.get('http://api.openweathermap.org/data/2.5/weather?id=1248991&appid=c5cdc721216339b2b9da9d05cf535617')
@@ -110,7 +115,7 @@ def reply_to_tweets():
 
 # get_temperature()
 # reply_to_tweets()
-while True:
-    # reply_to_tweets()
-    get_corona()
-    time.sleep(300)
+get_corona()
+
+
+
